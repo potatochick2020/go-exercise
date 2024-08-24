@@ -427,3 +427,224 @@ func main() {
 	fmt.Println(counter()) // Output: 3
 }
 ```
+# Method
+## Define method as types and function with type as parameter
+Go does not have classes. However, you can define methods on types.
+
+A method is a function with a special receiver argument.
+
+The receiver appears in its own argument list between the func keyword and the method name.
+```go
+package main
+
+import (
+	"fmt"
+	"math"
+)
+
+type Vertex struct {
+	X, Y float64
+}
+
+// betwen func and Abs(), Abs method has a special receiver of type Vertex named V
+func (v Vertex) Abs() float64 {
+	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+}
+// re writter in regular function 
+func Abs(v Vertex) float64 {
+	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+}
+func main() {
+	v := Vertex{3, 4}
+    //use v.Abs()
+	fmt.Println(v.Abs())
+    //use Abs(v)
+    fmt.Println(Abs(v))
+}
+```
+## Non Struct Type as Receiver
+Declare a method on non-struct types.
+
+In this example we see a numeric type `MyFloat` with an `Abs` method.
+
+You can only declare a method with a receiver whose type is defined in the same package as the method. You cannot declare a method with a receiver whose type is defined in another package (which includes the built-in types such as int).
+```go
+package main
+
+import (
+	"fmt"
+	"math"
+)
+
+type MyFloat float64
+
+func (f MyFloat) Abs() float64 {
+	if f < 0 {
+		return float64(-f)
+	}
+	return float64(f)
+}
+
+func main() {
+	f := MyFloat(-math.Sqrt2)
+	fmt.Println(f.Abs())
+}
+```
+## Pointer Receiver v.s. Value Receiver
+In short, if we want to modify `v.X` in the function (by reference instead of copy the value and spawn an instance) we can use pointers receiver.
+
+Methods with pointer receivers can modify the value to which the receiver points, while methods with value receiver cannot. Since methods often need to modify their receiver, pointer receivers are more common than value receivers.
+```go
+package main
+
+import (
+	"fmt"
+)
+
+type Vertex struct {
+	X, Y float64
+}
+
+// Pointer Receiver
+func (v *Vertex) ScaleByPointer(f float64) {
+	v.X = v.X * f
+	v.Y = v.Y * f
+}
+
+// Value Receiver
+func (v Vertex) ScaleByNonPointer(f float64) {
+	v.X = v.X * f
+	v.Y = v.Y * f
+}
+
+func main() {
+	v := Vertex{3, 4}
+	v.ScaleByNonPointer(10) //No change
+	fmt.Println(v) //{3 4}
+	v.ScaleByPointer(10) //modify the value itself
+	fmt.Println(v) //{30 40}
+	
+}
+```
+## Methods and Pointer indirection
+In short, when we pass in variable as parameter, we must follow strictly on taking a value or a pointer to value. While using a Receiver, it does not matter whether it is a value or a pointer to value.
+
+### Referencing 
+```go
+package main
+
+import "fmt"
+
+type Vertex struct {
+	X, Y float64
+}
+
+func (v *Vertex) Scale(f float64) {
+	v.X = v.X * f
+	v.Y = v.Y * f
+}
+
+func ScaleFunc(v *Vertex, f float64) {
+	v.X = v.X * f
+	v.Y = v.Y * f
+}
+
+func main() {
+	v := Vertex{3, 4}
+	p := &Vertex{3, 4}
+	// Does not matter when use receiver
+	v.Scale(2)
+	p.Scale(2)
+	// Does matter when use as parameter
+	ScaleFunc(&v, 10)
+	ScaleFunc(p, 10)
+
+	fmt.Println(v, p) //{60 80} &{60 80}
+}
+
+```
+
+### By Value
+```go
+package main
+
+import (
+	"fmt"
+	"math"
+)
+
+type Vertex struct {
+	X, Y float64
+}
+
+func (v Vertex) Abs() float64 {
+	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+}
+
+func AbsFunc(v Vertex) float64 {
+	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+}
+
+func main() {
+	v := Vertex{3, 4}
+	p := &Vertex{4, 3}
+	// Does not matter when use receiver
+	fmt.Println(v.Abs()) //5
+	fmt.Println(p.Abs()) //5
+	// Does matter when use as parameter
+	fmt.Println(AbsFunc(v))  //5
+	fmt.Println(AbsFunc(*p)) //5
+}
+```
+# Interfaces
+
+An interface type is defined as a set of method signatures.
+
+A value of interface type can hold any value that implements those methods.
+
+```go
+package main
+
+import (
+	"fmt"
+	"math"
+)
+
+type Abser interface {
+	Abs() float64
+}
+
+func main() {
+	var a Abser
+	f := MyFloat(-math.Sqrt2)
+	v := Vertex{3, 4}
+
+	a = f  // a MyFloat implements Abser
+	a = &v // a *Vertex implements Abser
+
+	// In the following line, v is a Vertex (not *Vertex) and does NOT implement Abser.
+	// cannot use v (variable of type Vertex) as Abser value in assignment: Vertex does not implement Abser (method Abs has pointer receiver)
+	a = v
+
+	fmt.Println(a.Abs())
+}
+
+type MyFloat float64
+
+// By implementing Abs(), MyFloat automatically satisfies the Abser interface.
+func (f MyFloat) Abs() float64 {
+	if f < 0 {
+		return float64(-f)
+	}
+	return float64(f)
+}
+
+// By implementing Abs(), *Vertex automatically satisfies the Abser interface.
+type Vertex struct {
+	X, Y float64
+}
+
+func (v *Vertex) Abs() float64 {
+	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+}
+```
