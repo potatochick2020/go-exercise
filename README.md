@@ -31,7 +31,7 @@ With above knowledge, broad but not very in depth should be enough to make the f
 - [ ] [Concurrency in Go: Tools and Techniques for Developers](https://www.amazon.com/Concurrency-Go-Tools-Techniques-Developers/dp/1491941197)
 - [ ] [Efficient Go: Data-Driven Performance Optimization](https://www.amazon.com/Efficient-Go-Data-Driven-Performance-Optimization/dp/1098105710)
 - [ ] [Go Optimizations 101](https://go101.org/optimizations/101.html)
-- [ ]
+
 # Blogs to read
 - [ ] [Go Wiki: Go For C++ Programmers](https://go.dev/wiki/GoForCPPProgrammers)
 - [ ] [Go Wiki: Learn Concurrency](https://go.dev/wiki/LearnConcurrency)
