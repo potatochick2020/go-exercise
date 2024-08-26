@@ -3,6 +3,7 @@
 Gym some `Go` and get familar with go concept and also my nvim keymapping.
 
 # Exercise Link
+- [x] [Go Tour](https://go.dev/tour/welcome/1)
 - [ ] [Learn Go With Test](https://quii.gitbook.io/learn-go-with-tests) 
 
 # Topics
